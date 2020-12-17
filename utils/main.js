@@ -1,0 +1,26 @@
+const { version } = require("../package.json");
+const program = require("commander");
+const { mapActions } = require("./common.js");
+// Object.keys()
+Reflect.ownKeys(mapActions).forEach((action) => {
+  program
+    .command(action) //配置命令的名字
+    .alias(mapActions[action].alias) // 命令的别名
+    .description(mapActions[action].description) // 命令对应的描述
+    .action(() => {
+      //动作
+      if (action === "*") {
+        //访问不到对应的命令 就打印找不到命令
+        console.log(mapActions[action].description);
+      } else if (action === "create") {
+        require("../src/creator").init();
+      } else {
+        console.log(action);
+        // 分解命令 到文件里 有多少文件 就有多少配置 create config
+        // lee-cli create project-name ->[node,lee-cli,create,project-name]
+        console.log(process.argv);
+      }
+    });
+});
+
+program.version(version).parse(process.argv);

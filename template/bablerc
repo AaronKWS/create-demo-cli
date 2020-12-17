@@ -1,0 +1,12 @@
+{
+    "presets": [[
+        "@babel/env",
+        {
+            "useBuiltIns": "usage",
+            "targets": {
+                "chrome": "64"
+            }
+        }
+    ]],
+	"plugins": ["@babel/plugin-transform-runtime"]
+}
