@@ -5,19 +5,9 @@ const mapActions = {
     description: "创建一个项目", // 描述
     examples: [
       //用法
-      "lee-cli create <project-name>",
+      "demo-app create",
     ],
   },
-  //   config: {
-  //     //配置文件
-  //     alias: "conf", //别名
-  //     description: "config project variable", // 描述
-  //     examples: [
-  //       //用法
-  //       "lee-cli config set <k> <v>",
-  //       "lee-cli config get <k>",
-  //     ],
-  //   },
   "*": {
     alias: "", //别名
     description: "command not found", // 描述
