@@ -1,40 +1,70 @@
 const path = require("path");
 const fs = require("fs-extra");
 const chalk = require("chalk");
-const { execSync } = require("child_process");
+const { copyDir, pathsMap } = require("./tools/copyDir");
+const webpackModuleConfig = require("./template/config/staticConfig/webpack.module.config.js");
 
 module.exports = function (creator, options, callback) {
   const { name, desc } = options;
+  let entry, rules;
 
   // 获取当前命令执行的目录
   const currentCWDPath = process.cwd();
 
   // 模版文件内相关文件引用路径
   const projectPath = path.join(currentCWDPath, name);
-  const srcPath = path.join(projectPath, "src");
-  const pubilcPath = path.join(projectPath, "public");
-  const buildPath = path.join(projectPath, "build");
 
-  // 同步创建目录
-  fs.mkdirSync(projectPath);
-  fs.mkdirSync(srcPath);
-  fs.mkdirSync(pubilcPath);
-  fs.mkdirSync(buildPath);
+  // 配置相关
+  if (options.env.length) {
+    Object.keys(webpackModuleConfig).map((_keys) => {
+      if (options.env.includes(_keys)) {
+        const configPar = webpackModuleConfig[_keys];
 
-  // 将文件添加到内存
-  creator.copyTpl(
-    "packageTpl",
-    path.join(projectPath, "package.json"),
-    {
-      name,
-      desc,
-    },
-    true
-  );
-  creator.copyTpl("bablerc", path.join(projectPath, ".babelrc"));
-  creator.copyTpl("webpackConfig", path.join(projectPath, "webpack.config.js"));
-  creator.copyTpl("src/index.js", path.join(srcPath, "index.js"));
-  creator.copyTpl("public/index.html", path.join(pubilcPath, "index.html"));
+        if (configPar.entry) {
+          entry = configPar.entry;
+        }
+
+        if (!!configPar.rules.length) {
+          rules = [
+            ...webpackModuleConfig[_keys].rules,
+            ...webpackModuleConfig.DEFULT.rules,
+          ];
+        }
+      }
+    });
+  } else {
+    entry = webpackModuleConfig.DEFULT.entry;
+    rules = webpackModuleConfig.DEFULT.rules;
+  }
+
+  console.log(11111);
+
+  // 文件拉取相关
+  copyDir(path.resolve(__dirname, "template"), projectPath, (error) => {
+    console.log(chalk.red(error));
+  });
+
+  Object.keys(pathsMap).forEach((item) => {
+    const { source, to } = pathsMap[item];
+
+    if (item === "package.json") {
+      creator.copyTpl(
+        path.join(source, item),
+        path.join(to, item),
+        { name, desc },
+        true
+      );
+    } else if (item === "config.ejs") {
+      creator.copyTpl(
+        path.join(source, item),
+        path.join(to, "config.js"),
+        { entry, rules },
+        true
+      );
+    } else {
+      creator.copyTpl(path.join(source, item), path.join(to, item));
+    }
+  });
 
   console.log();
 

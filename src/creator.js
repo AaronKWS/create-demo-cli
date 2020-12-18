@@ -19,6 +19,7 @@ class Creator {
     this.options = {
       name: "demo-app",
       desc: "A demo of app",
+      env: null,
     };
   }
 
@@ -63,6 +64,14 @@ class Creator {
       default: "A demo of app", // 默认值
     });
 
+    // 问题3: demo支持环境
+    prompt.push({
+      type: "checkbox",
+      name: "env",
+      message: "请输入DEMO_APP支持环境",
+      choices: [{ name: "TS", value: "TS" }],
+    });
+
     return inquirer.prompt(prompt);
   }
 
@@ -86,19 +95,12 @@ class Creator {
     });
   }
 
-  getFilePath(file) {
-    return path.resolve(__dirname, "../template", file);
-  }
-
   // 拷贝template文件（携带ejs语法）
   copyTpl(file, to, option = {}, isEjs = false) {
-    const filePath = this.getFilePath(file);
-    console.log(chalk.green("create: "), filePath);
-
     if (isEjs) {
-      this.fsEditorStore.copyTpl(filePath, to, option);
+      this.fsEditorStore.copyTpl(file, to, option);
     } else {
-      this.fsEditorStore.copy(filePath, to);
+      this.fsEditorStore.copy(file, to);
     }
   }
 }
